@@ -138,7 +138,7 @@
     <div class="xlsx-drop" id="xlsx-drop" onclick="document.getElementById('xlsx-file').click()">
       <input type="file" id="xlsx-file" accept=".xlsx,.xls" style="display:none">
       <p style="font-size:13px;color:var(--muted);margin-bottom:3px">Clique para selecionar ou arraste o arquivo <strong>.xlsx</strong></p>
-      <p style="font-size:11px;color:var(--muted)">Formato padrão: <strong>Valor do Plano · 1º Pagamento · Nº Parc. Adesão</strong> &nbsp;·&nbsp; Ou exportação <strong>BT</strong> (detectada automaticamente)</p>
+      <p style="font-size:11px;color:var(--muted)">Formato padrão: <strong>Valor do Plano · 1º Pagamento · Nº Parc. Adesão</strong> &nbsp;·&nbsp; Ou exportação <strong>BT</strong> / <strong>Formandos</strong> (detectadas automaticamente)</p>
     </div>
     <div id="xlsx-status"></div>
   </div>
@@ -405,6 +405,12 @@ function detectarFormatoBT(data){
   return String(data[0][0]||'').trim().toLowerCase() === 'contrato id';
 }
 
+function detectarFormatoFormandos(data){
+  if(!data || !data[0]) return false;
+  const h = data[0].map(c=>String(c||'').trim().toLowerCase());
+  return h[0]==='contrato' && h[1]==='nome' && h.includes('aguardando pagamento (líquido)');
+}
+
 function parsarDataBR(s){
   if(!s || typeof s !== 'string') return null;
   const p = s.trim().split('/');
@@ -482,6 +488,44 @@ function mostrarSeletorTurma(data){
     </div>`;
 }
 
+function parsarDataUltimaParcela(v){
+  if(v instanceof Date) return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0');
+  return parsarDataBR(String(v||'').trim());
+}
+
+function parsarFormandos(data){
+  const rows = [];
+  for(let i = 1; i < data.length; i++){
+    const row = data[i];
+    if(!row || row.length < 18) continue;
+    const totalAtraso     = parseFloat(row[12])||0;
+    const totalAguardando = parseFloat(row[13])||0;
+    const restante = totalAtraso + totalAguardando;
+    const qtdTotal = parseInt(row[14])||0;
+    const qtdPagas = parseInt(row[15])||0;
+    const pRestantes = qtdTotal - qtdPagas;
+    if(restante <= 0 || pRestantes <= 0) continue;
+    const ultima = parsarDataUltimaParcela(row[17]);
+    if(!ultima) continue;
+    const d = addMesesStr(ultima, -(pRestantes-1));
+    rows.push({v: restante, d, p: pRestantes});
+  }
+  return rows;
+}
+
+function mostrarStatusFormandos(){
+  const tot = xlsxRows.reduce((a,r)=>a+r.v,0);
+  const mediaParc = xlsxRows.length ? Math.round(xlsxRows.reduce((a,r)=>a+r.p,0)/xlsxRows.length) : 0;
+  document.getElementById('xlsx-status').innerHTML = `
+    <div class="xlsx-badge">✓ ${xlsxRows.length} contratos · A receber: ${R(tot)} · Parcelas médias restantes: ${mediaParc}x</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+      <span style="font-size:12px;color:var(--muted);white-space:nowrap">Saldo financeiro atual (R$)</span>
+      <input type="number" id="bt-saldo" min="0" step="100" placeholder="0,00"
+        style="width:160px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--navy);background:var(--card)"
+        oninput="calcular()">
+    </div>`;
+}
+
 // header:1 retorna arrays por posição — evita problema de encoding nos nomes das colunas
 function parsarXlsxLegado(data){
   const rows = [];
@@ -522,6 +566,11 @@ function processarArquivo(buffer){
     btRawData = data;
     xlsxRows = [];
     mostrarSeletorTurma(data);
+  } else if(detectarFormatoFormandos(data)){
+    btRawData = null;
+    xlsxRows = parsarFormandos(data);
+    mostrarStatusFormandos();
+    calcular();
   } else {
     btRawData = null;
     xlsxRows = parsarXlsxLegado(data);
