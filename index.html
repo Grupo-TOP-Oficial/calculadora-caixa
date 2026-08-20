@@ -24,10 +24,16 @@
     .cap { color:var(--muted); font-size:13px; margin-bottom:16px; }
     hr { border:none; border-top:1px solid var(--border); margin:28px 0; }
 
-    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-    .g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; min-width:0; }
+    .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; min-width:0; }
+    .g4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; min-width:0; }
+    .g2>*, .g3>*, .g4>* { min-width:0; }
     @media(max-width:700px){ .g2,.g3,.g4{ grid-template-columns:1fr } }
+
+    .sub-stack { display:flex; flex-direction:column; }
+    .sub-sec { padding:18px 0; border-top:1px solid var(--border); }
+    .sub-sec:first-child { padding-top:0; border-top:none; }
+    .sub-lbl { font-weight:700; font-size:13px; margin-bottom:8px; }
 
     .fg { display:flex; flex-direction:column; gap:5px; }
     .lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:600; }
@@ -147,24 +153,24 @@
 <hr>
 
 <h2>Convites e Mesas Extras</h2>
-<div class="g2" style="gap:24px">
-  <div>
-    <p style="font-weight:700;font-size:13px;margin-bottom:8px">Convites — Baile</p>
+<div class="sub-stack">
+  <div class="sub-sec">
+    <p class="sub-lbl">Convites — Baile</p>
     <div class="tbl-wrap"><table class="et" id="tbl-cb"><thead><tr><th>Qtd</th><th>Valor Unit. (R$)</th><th>1ª Parcela</th><th>Parcelas</th><th>Última Parcela</th><th></th></tr></thead><tbody></tbody></table></div>
     <button class="btn-add" onclick="addLote('tbl-cb')">+ Adicionar linha</button>
   </div>
-  <div>
-    <p style="font-weight:700;font-size:13px;margin-bottom:8px">Convites — Jantar</p>
+  <div class="sub-sec">
+    <p class="sub-lbl">Convites — Jantar</p>
     <div class="tbl-wrap"><table class="et" id="tbl-cj"><thead><tr><th>Qtd</th><th>Valor Unit. (R$)</th><th>1ª Parcela</th><th>Parcelas</th><th>Última Parcela</th><th></th></tr></thead><tbody></tbody></table></div>
     <button class="btn-add" onclick="addLote('tbl-cj')">+ Adicionar linha</button>
   </div>
-  <div>
-    <p style="font-weight:700;font-size:13px;margin-bottom:8px">Mesas — Baile</p>
+  <div class="sub-sec">
+    <p class="sub-lbl">Mesas — Baile</p>
     <div class="tbl-wrap"><table class="et" id="tbl-mb"><thead><tr><th>Qtd</th><th>Valor Unit. (R$)</th><th>1ª Parcela</th><th>Parcelas</th><th>Última Parcela</th><th></th></tr></thead><tbody></tbody></table></div>
     <button class="btn-add" onclick="addLote('tbl-mb')">+ Adicionar linha</button>
   </div>
-  <div>
-    <p style="font-weight:700;font-size:13px;margin-bottom:8px">Mesas — Jantar</p>
+  <div class="sub-sec">
+    <p class="sub-lbl">Mesas — Jantar</p>
     <div class="tbl-wrap"><table class="et" id="tbl-mj"><thead><tr><th>Qtd</th><th>Valor Unit. (R$)</th><th>1ª Parcela</th><th>Parcelas</th><th>Última Parcela</th><th></th></tr></thead><tbody></tbody></table></div>
     <button class="btn-add" onclick="addLote('tbl-mj')">+ Adicionar linha</button>
   </div>
