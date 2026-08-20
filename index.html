@@ -500,21 +500,23 @@ function parsarDataUltimaParcela(v){
 }
 
 function parsarFormandos(data){
+  // Ignora Em Atraso/Aguardando Pagamento (são apenas status do contrato) e reconstrói
+  // o calendário completo do plano: 1ª parcela = Última Parcela − (Qtd de Parcelas − 1),
+  // valor mensal = (Total − Lançamento sem parcela) / Qtd de Parcelas — de forma cumulativa,
+  // independente do que já foi pago.
   const rows = [];
   for(let i = 1; i < data.length; i++){
     const row = data[i];
     if(!row || row.length < 18) continue;
-    const totalAtraso     = parseFloat(row[12])||0;
-    const totalAguardando = parseFloat(row[13])||0;
-    const restante = totalAtraso + totalAguardando;
-    const qtdTotal = parseInt(row[14])||0;
-    const qtdPagas = parseInt(row[15])||0;
-    const pRestantes = qtdTotal - qtdPagas;
-    if(restante <= 0 || pRestantes <= 0) continue;
+    const total       = parseFloat(row[9])||0;
+    const lancamento  = parseFloat(row[10])||0;
+    const financiado  = total - lancamento;
+    const qtdTotal    = parseInt(row[14])||0;
+    if(financiado <= 0 || qtdTotal <= 0) continue;
     const ultima = parsarDataUltimaParcela(row[17]);
     if(!ultima) continue;
-    const d = addMesesStr(ultima, -(pRestantes-1));
-    rows.push({v: restante, d, p: pRestantes});
+    const d = addMesesStr(ultima, -(qtdTotal-1));
+    rows.push({v: financiado, d, p: qtdTotal});
   }
   return rows;
 }
@@ -523,7 +525,7 @@ function mostrarStatusFormandos(){
   const tot = xlsxRows.reduce((a,r)=>a+r.v,0);
   const mediaParc = xlsxRows.length ? Math.round(xlsxRows.reduce((a,r)=>a+r.p,0)/xlsxRows.length) : 0;
   document.getElementById('xlsx-status').innerHTML = `
-    <div class="xlsx-badge">✓ ${xlsxRows.length} contratos · A receber: ${R(tot)} · Parcelas médias restantes: ${mediaParc}x</div>
+    <div class="xlsx-badge">✓ ${xlsxRows.length} contratos · Total financiado: ${R(tot)} · Parcelas médias do plano: ${mediaParc}x</div>
     <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
       <span style="font-size:12px;color:var(--muted);white-space:nowrap">Saldo financeiro atual (R$)</span>
       <input type="number" id="bt-saldo" min="0" step="100" placeholder="0,00"
