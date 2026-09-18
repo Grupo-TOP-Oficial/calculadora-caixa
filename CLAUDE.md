@@ -5,7 +5,8 @@ Calculadora de fluxo de caixa para projetos de formatura/baile — simula entrad
 ## Deploy
 
 - App real: **`index.html`** (single-file, vanilla JS, sem build — Chart.js + xlsx.js via CDN).
-- Publicado ao vivo via GitHub Pages: **https://theochacon.github.io/calculadora-caixa/**, a partir da branch `main`.
+- Repositório mora na organization **`Grupo-TOP-Oficial`** (migrado de `theochacon/calculadora-caixa` em set/2026 — se algum link antigo com `github.com/theochacon/...` aparecer, está desatualizado).
+- Publicado ao vivo via GitHub Pages: **https://grupo-top-oficial.github.io/calculadora-caixa/**, a partir da branch `main`.
 - O usuário testa recarregando essa URL pública, **não** um arquivo local. Uma alteração que fica só no working tree é invisível pra ele.
 - **Sempre `git commit` + `git push origin main` logo após editar** — não pare para perguntar "posso enviar?". Trate isso como parte normal de terminar a tarefa.
 
